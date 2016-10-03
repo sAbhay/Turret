@@ -13,6 +13,10 @@ float paddleSize = 50;
 float[] target;
 float[] camPos;
 
+ArrayList<Bullet> b = new ArrayList<Bullet>();
+
+Player player;
+
 void setup()
 {
   fullScreen(P3D);
@@ -21,12 +25,15 @@ void setup()
 
   noCursor();
 
-  cam = new Camera(this, width/2, height/2, 0, width/2, height/2, -range);
+  player = new Player();
+  cam = new Camera(this, player.pos.x, player.pos.y, player.pos.z, player.pos.x, player.pos.y, -range);
 }
 
 void draw()
 {
   background(0);
+
+  //cam = new Camera(this, player.pos.x, player.pos.y, player.pos.z, player.pos.x, player.pos.y, -range);
 
   target = cam.target();
   camPos = cam.position();
@@ -34,6 +41,10 @@ void draw()
   cam.feed();
   mouseLook();
   camMove();
+
+  player.pos.x = camPos[0];
+  player.pos.y = camPos[1];
+  player.pos.z = camPos[2];
 
   pushMatrix();
   translate(width/2, height/2, -range/2);
@@ -48,72 +59,103 @@ void draw()
   translate(target[0], target[1], target[2]);
   sphere(15);
   popMatrix();
+
+  player.display();
+
+  for (int i = 0; i < b.size(); i++)
+  {
+    b.get(i).update(); 
+
+    if (b.get(i).pos.x < 0 || b.get(i).pos.x > width || b.get(i).pos.y < 0 || b.get(i).pos.y > height || b.get(i).pos.z > 0 || b.get(i).pos.z < -range)
+    {
+      b.remove(i);
+    }
+  }
 }
 
 void mouseLook()
 {
   cam.pan(radians((mouseX - pmouseX)/2));
-  cam.tilt(radians((mouseY - pmouseY)/2));
+  //cam.tilt(radians((mouseY - pmouseY)/2));
 }
 
 void camMove()
 {
-  //if (camPos[1] >= 0 && camPos[1] <= height && camPos[0] >= 0 && camPos[0] <= width && camPos[2] <= 0 && camPos[2] >= -range)
+  if (upPressed)
   {
-    if (upPressed)
-    {
-      cam.dolly(-movementSpeed);
-    }
+    //player.forward();
+    cam.dolly(-player.speed);
+  }
 
-    if (downPressed)
-    {
-      //cam.dolly(movementSpeed);
-    }
+  if (downPressed)
+  {
+    //player.back();
+    cam.dolly(player.speed);
+  }
 
-    if (leftPressed)
-    {
-      cam.truck(-movementSpeed);
-    }
+  if (leftPressed)
+  {
+    //player.left();
+    cam.truck(-player.speed);
+  }
 
-    if (rightPressed)
-    {
-      cam.truck(movementSpeed);
-    }
+  if (rightPressed)
+  {
+    //player.right();
+    cam.truck(player.speed);
   }
 }
 
 void keyPressed()
 {
-  switch(key)
+  if (key == 'w')
   {
-  case 'w':
     upPressed = true;
+  }
 
-  case 's':
+  if (key == 's')
+  {
     downPressed = true;
+  }
 
-  case 'a':
+  if (key == 'a')
+  {
     leftPressed = true;
+  }
 
-  case 'd':
+  if (key == 'd')
+  {
     rightPressed = true;
   }
 }
 
 void keyReleased()
 {
-  switch(key)
+  if (key == 'w')
   {
-  case 'w':
     upPressed = false;
+  }
 
-  case 's':
+  if (key == 's')
+  {
     downPressed = false;
+  }
 
-  case 'a':
+  if (key == 'a')
+  {
     leftPressed = false;
+  }
 
-  case 'd':
+  if (key == 'd')
+  {
     rightPressed = false;
   }
+}
+
+void mousePressed()
+{
+  PVector _camPos = new PVector(camPos[0], camPos[1], camPos[2]);
+  PVector _target = new PVector(target[0], target[1], target[2]);
+
+  b.add(new Bullet(_camPos, _target));
 }
