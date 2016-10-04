@@ -1,11 +1,12 @@
 import damkjer.ocd.*;
+import processing.net.*;
 
 boolean upPressed, downPressed, leftPressed, rightPressed;
 float movementSpeed = 20;
 
 Camera cam;
 
-float range = 5000;
+float range = 10000;
 
 PVector paddle;
 float paddleSize = 50;
@@ -14,6 +15,15 @@ float[] target;
 float[] camPos;
 
 ArrayList<Bullet> b = new ArrayList<Bullet>();
+ArrayList<MovingEnemy> mE = new ArrayList<MovingEnemy>();
+ArrayList<ShootingEnemy> sE = new ArrayList<ShootingEnemy>();
+
+PVector bulletTarget;
+PVector bulletSpawn;
+
+PVector spawn;
+
+String input;
 
 Player player;
 
@@ -25,15 +35,16 @@ void setup()
 
   noCursor();
 
-  player = new Player();
+  PVector playerSpawn = new PVector(0, height/2, 0);
+
+  player = new Player(playerSpawn);
+
   cam = new Camera(this, player.pos.x, player.pos.y, player.pos.z, player.pos.x, player.pos.y, -range);
 }
 
 void draw()
 {
   background(0);
-
-  //cam = new Camera(this, player.pos.x, player.pos.y, player.pos.z, player.pos.x, player.pos.y, -range);
 
   target = cam.target();
   camPos = cam.position();
@@ -42,120 +53,109 @@ void draw()
   mouseLook();
   camMove();
 
+  bulletSpawn = new PVector(camPos[0], camPos[1], camPos[2]);
+
   player.pos.x = camPos[0];
   player.pos.y = camPos[1];
   player.pos.z = camPos[2];
 
+  bulletTarget = new PVector(target[0], target[1], target[2]);
+
+  if (mE.size() < 5)
+  {
+    int spawnPlace = (int) random(3);
+
+    switch(spawnPlace)
+    {
+    case 0:
+      spawn = new PVector(random(-width, width), random(height), -range);
+      mE.add(new MovingEnemy(spawn, player.pos, random(5, 10), random(50, 200), 0));
+      break;
+
+    case 1:
+      spawn = new PVector(-width, random(height), random(-range, -range/2));
+      mE.add(new MovingEnemy(spawn, player.pos, random(5, 10), random(50, 200), 0));
+      break;
+
+    case 2:
+      spawn = new PVector(width, random(height), random(-range, -range/2));
+      mE.add(new MovingEnemy(spawn, player.pos, random(5, 10), random(50, 200), 0));
+      break;
+    }
+  }
+
+  if (sE.size() < 5)
+  {
+    int spawnPlace = (int) random(3);
+
+    switch(spawnPlace)
+    {
+    case 0:
+      spawn = new PVector(random(-width, width), random(height), -range + 100);
+      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(2000, 4000)));
+      break;
+
+    case 1:
+      spawn = new PVector(-width, random(height), random(-range, 0));
+      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(2000, 4000)));
+      break;
+
+    case 2:
+      spawn = new PVector(width, random(height), random(-range, 0));
+      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(2000, 4000)));
+      break;
+    }
+  }
+
   pushMatrix();
-  translate(width/2, height/2, -range/2);
+  translate(0, height/2, -range/2);
   noFill();
   stroke(255);
-  box(width, height, range);
+  box(width*2, height, range);
   popMatrix();
-
-  noStroke();
-  fill(255);
-  pushMatrix();
-  translate(target[0], target[1], target[2]);
-  sphere(15);
-  popMatrix();
-
-  player.display();
 
   for (int i = 0; i < b.size(); i++)
   {
     b.get(i).update(); 
 
-    if (b.get(i).pos.x < 0 || b.get(i).pos.x > width || b.get(i).pos.y < 0 || b.get(i).pos.y > height || b.get(i).pos.z > 0 || b.get(i).pos.z < -range)
+    if (b.get(i).pos.x < -width || b.get(i).pos.x > width || b.get(i).pos.y < 0 || b.get(i).pos.y > height || b.get(i).pos.z < -range || b.get(i).pos.z > 0)
     {
       b.remove(i);
     }
   }
-}
 
-void mouseLook()
-{
-  cam.pan(radians((mouseX - pmouseX)/2));
-  //cam.tilt(radians((mouseY - pmouseY)/2));
-}
-
-void camMove()
-{
-  if (upPressed)
+  for (int i = 0; i < mE.size(); i++)
   {
-    //player.forward();
-    cam.dolly(-player.speed);
+    mE.get(i).update();
+
+    if (mE.get(i).killed)
+    {
+      mE.remove(i);
+    }
   }
 
-  if (downPressed)
+  for (int i = 0; i < sE.size(); i++)
   {
-    //player.back();
-    cam.dolly(player.speed);
+    sE.get(i).update(); 
+    sE.get(i).shoot(sE.get(i).pos, player.pos);
+
+    if (sE.get(i).killed)
+    {
+      sE.remove(i);
+    }
   }
 
-  if (leftPressed)
-  {
-    //player.left();
-    cam.truck(-player.speed);
-  }
+  noStroke();
+  fill(255, 0, 0);
+  pushMatrix();
+  translate(target[0], target[1], target[2]);
+  sphere(20);
+  popMatrix();
 
-  if (rightPressed)
-  {
-    //player.right();
-    cam.truck(player.speed);
-  }
-}
-
-void keyPressed()
-{
-  if (key == 'w')
-  {
-    upPressed = true;
-  }
-
-  if (key == 's')
-  {
-    downPressed = true;
-  }
-
-  if (key == 'a')
-  {
-    leftPressed = true;
-  }
-
-  if (key == 'd')
-  {
-    rightPressed = true;
-  }
-}
-
-void keyReleased()
-{
-  if (key == 'w')
-  {
-    upPressed = false;
-  }
-
-  if (key == 's')
-  {
-    downPressed = false;
-  }
-
-  if (key == 'a')
-  {
-    leftPressed = false;
-  }
-
-  if (key == 'd')
-  {
-    rightPressed = false;
-  }
+  fill(255);
 }
 
 void mousePressed()
 {
-  PVector _camPos = new PVector(camPos[0], camPos[1], camPos[2]);
-  PVector _target = new PVector(target[0], target[1], target[2]);
-
-  b.add(new Bullet(_camPos, _target));
+  b.add(new Bullet(player.pos, bulletTarget, 100));
 }

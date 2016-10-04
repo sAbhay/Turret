@@ -6,10 +6,10 @@ class Bullet
   float speed;
   float size;
 
-  Bullet(PVector _start, PVector _target)
+  Bullet(PVector _start, PVector _target, float _speed)
   {
     size = 5; 
-    speed = 100;
+    speed = _speed;
 
     pos = new PVector(_start.x, _start.y, _start.z); // _start determines the spawn point
     dir = new PVector(_target.x, _target.y, _target.z); // _target determines target
@@ -25,8 +25,8 @@ class Bullet
     pushMatrix();
 
     translate(pos.x, pos.y, pos.z);
-    fill(255, 0, 0);
-    stroke(255, 0, 0);
+    noStroke();
+    fill(0, 255, 0);
     sphere(size);
 
     popMatrix();
