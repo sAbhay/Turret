@@ -4,4 +4,12 @@ class MovingEnemy extends Enemy
   {
     super(_start, _target, _speed, _size, _textureNo);
   }
+  
+  void checkCollision()
+  {
+   if(pos.x >= player.pos.x - player.size/2 && pos.x <= player.pos.x + player.size/2 && pos.y >= player.pos.y - player.size/2 && pos.y <= player.pos.y + player.size/2 && pos.z >= player.pos.z - player.size/2 && pos.z <= player.pos.z + player.size/2)
+   {
+    health -= 4; 
+   }
+  }
 }

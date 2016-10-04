@@ -27,6 +27,9 @@ String input;
 
 Player player;
 
+float health = 100;
+float score = 0;
+
 void setup()
 {
   fullScreen(P3D);
@@ -40,6 +43,8 @@ void setup()
   player = new Player(playerSpawn);
 
   cam = new Camera(this, player.pos.x, player.pos.y, player.pos.z, player.pos.x, player.pos.y, -range);
+  
+  textAlign(CENTER);
 }
 
 void draw()
@@ -51,7 +56,6 @@ void draw()
 
   cam.feed();
   mouseLook();
-  camMove();
 
   bulletSpawn = new PVector(camPos[0], camPos[1], camPos[2]);
 
@@ -68,23 +72,23 @@ void draw()
     switch(spawnPlace)
     {
     case 0:
-      spawn = new PVector(random(-width, width), random(height), -range);
+      spawn = new PVector(random(-width, width), random(height), -range + 100);
       mE.add(new MovingEnemy(spawn, player.pos, random(5, 10), random(50, 200), 0));
       break;
 
     case 1:
-      spawn = new PVector(-width, random(height), random(-range, -range/2));
+      spawn = new PVector(-width + 100, random(height), random(-range, -range/2));
       mE.add(new MovingEnemy(spawn, player.pos, random(5, 10), random(50, 200), 0));
       break;
 
     case 2:
-      spawn = new PVector(width, random(height), random(-range, -range/2));
+      spawn = new PVector(width - 100, random(height), random(-range, -range/2));
       mE.add(new MovingEnemy(spawn, player.pos, random(5, 10), random(50, 200), 0));
       break;
     }
   }
 
-  if (sE.size() < 5)
+  if (sE.size() < 2)
   {
     int spawnPlace = (int) random(3);
 
@@ -92,17 +96,17 @@ void draw()
     {
     case 0:
       spawn = new PVector(random(-width, width), random(height), -range + 100);
-      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(2000, 4000)));
+      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(4000, 8000)));
       break;
 
     case 1:
       spawn = new PVector(-width, random(height), random(-range, 0));
-      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(2000, 4000)));
+      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(4000, 8000)));
       break;
 
     case 2:
       spawn = new PVector(width, random(height), random(-range, 0));
-      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(2000, 4000)));
+      sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(4000, 8000)));
       break;
     }
   }
@@ -127,10 +131,13 @@ void draw()
   for (int i = 0; i < mE.size(); i++)
   {
     mE.get(i).update();
+    mE.get(i).checkCollision();
 
     if (mE.get(i).killed)
     {
       mE.remove(i);
+      score += 6;
+      health++;
     }
   }
 
@@ -142,6 +149,8 @@ void draw()
     if (sE.get(i).killed)
     {
       sE.remove(i);
+      score += 8;
+      health++;
     }
   }
 
@@ -149,13 +158,25 @@ void draw()
   fill(255, 0, 0);
   pushMatrix();
   translate(target[0], target[1], target[2]);
-  sphere(20);
+  sphere(30);
+  strokeWeight(5);
+  stroke(0, 255, 0);
+  noFill();
+  arc(0, 0, 300, 300, 0, radians(health*3.6));
+  fill(255);
+  textSize(200);
+  text((int) score, - width/2 + 200, - height/2 + 100);
   popMatrix();
 
+  strokeWeight(1);
+  noStroke();
   fill(255);
+  
+  health += 0.025;
 }
 
 void mousePressed()
 {
   b.add(new Bullet(player.pos, bulletTarget, 100));
+  score -= 3;
 }

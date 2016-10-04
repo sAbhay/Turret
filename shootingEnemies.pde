@@ -18,16 +18,24 @@ class ShootingEnemy extends Enemy
     if (time < millis())
     {
       bullets.add(new Bullet(_start, _target, 20));
-      time += random(fireRate);
+      time += fireRate;
     }
 
     for (int i = 0; i < bullets.size(); i++)
     {
       bullets.get(i).update();
-      
-      if(bullets.get(i).pos.x < -width || bullets.get(i).pos.x > width || bullets.get(i).pos.y < 0 || bullets.get(i).pos.y > height || bullets.get(i).pos.z < -range || bullets.get(i).pos.z > 0)
+
+      if (bullets.size() != 0)
       {
-       bullets.remove(i); 
+        if (dist(bullets.get(i).pos.x, bullets.get(i).pos.y, bullets.get(i).pos.z, player.pos.x, player.pos.y, player.pos.z) < size/2)
+        {
+          health -= 1;
+        }
+
+        if (bullets.get(i).pos.x < -width || bullets.get(i).pos.x > width || bullets.get(i).pos.y < 0 || bullets.get(i).pos.y > height || bullets.get(i).pos.z < -range || bullets.get(i).pos.z > 0)
+        {
+          bullets.remove(i);
+        }
       }
     }
   }
