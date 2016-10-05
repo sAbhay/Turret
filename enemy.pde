@@ -15,9 +15,6 @@ class Enemy
 
   Enemy(PVector _start, PVector _target, float _speed, float _size, int _textureNo)
   {
-    //start = _start;
-    //target = _target;
-
     pos = new PVector(_start.x, _start.y, _start.z);
     dir = new PVector(_target.x, _target.y, _target.z);
 
@@ -62,7 +59,7 @@ class Enemy
 
   void checkBoundaries()
   {
-    if (pos.x < -width || pos.x > width || pos.z > 0 || pos.z < -range)
+    if (pos.x < -width || pos.x > width || pos.z > 0 || pos.z < -range || pos.y < 0 || pos.y > height)
     {
       killed = true;
     }
