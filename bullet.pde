@@ -5,8 +5,10 @@ class Bullet
 
   float speed;
   float size;
+  
+  color colour;
 
-  Bullet(PVector _start, PVector _target, float _speed)
+  Bullet(PVector _start, PVector _target, float _speed, color _colour)
   {
     size = 5; 
     speed = _speed;
@@ -18,15 +20,17 @@ class Bullet
 
     dir.normalize();
     dir.mult(-speed);
+    
+    colour = _colour;
   }
 
   void display()
   {
     pushMatrix();
 
-    translate(pos.x, pos.y, pos.z);
+    translate(pos.x, pos.y, pos.z); // draws bullets at pos
     noStroke();
-    fill(0, 255, 0);
+    fill(colour);
     sphere(size);
 
     popMatrix();
@@ -34,7 +38,7 @@ class Bullet
 
   void move()
   {
-    pos.add(dir);
+    pos.add(dir); // causes the bullet to move towards the target every tick
   }
   
   void update()

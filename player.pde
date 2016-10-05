@@ -1,4 +1,4 @@
-class Player
+class Player // essentially, a collection of variables
 {
   PVector pos;
   float speed;
@@ -11,15 +11,5 @@ class Player
     pos = _pos;
     speed = 15;
     size = 50;
-  }
-  
-  void display()
-  {
-   pushMatrix();
-   
-   translate(pos.x, pos.y, pos.z);
-   box(size);
-   
-   popMatrix();
   }
 }

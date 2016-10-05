@@ -3,29 +3,29 @@ import damkjer.ocd.*;
 Camera cam;
 Camera staticCam;
 
-float range = 10000;
+float range = 10000; // z-length of the space
 
-float[] target;
-float[] camPos;
+float[] target; // tracks camera's target in the form of a float array: [0] = x, [1] = y, [2] = z
+float[] camPos; // tracks camera's position in the form of a float array: [0] = x, [1] = y, [2] = z
 
 ArrayList<Bullet> b = new ArrayList<Bullet>();
 ArrayList<MovingEnemy> mE = new ArrayList<MovingEnemy>();
 ArrayList<ShootingEnemy> sE = new ArrayList<ShootingEnemy>();
 
-PVector bulletTarget;
+PVector bulletTarget; // crosshair position, camera's target
 
-PVector spawn;
+PVector spawn; // enemy spawn
 
 Player player;
 
-float health = 100;
-float score = 0;
+float health = 100; // tracks player's health
+float score = 0; // tracks player's score
 
-int bulletsShot = 0;
-int enemiesKilled = 0;
+int bulletsShot = 0; // tracks how many bullets have been fired
+int enemiesKilled = 0; // tracks how many enemies have been killed by bullets
 
-int shootingKilled = 0;
-int movingKilled = 0;
+int shootingKilled = 0; // tracks how many shooting enemies have been killed by bullets
+int movingKilled = 0; // tracks how many moving enemies have been killed by bullets
 
 int screenState = 0;
 
@@ -37,7 +37,7 @@ void setup()
 
   noCursor();
 
-  PVector playerSpawn = new PVector(0, height/2, 0);
+  PVector playerSpawn = new PVector(0, height/2, 0); // determines player's spawn point
 
   player = new Player(playerSpawn);
 
@@ -53,7 +53,7 @@ void draw()
 
   switch(screenState)
   {
-  case 0:
+  case 0: // start screen
 
     staticCam.feed();
 
@@ -65,11 +65,11 @@ void draw()
     textSize(64);
     text("A survival FPS (with blocks)", width/2, height - (height/10));
 
-    button(width/2 - 50, height/2, 120, 1, "Play");
+    button(width/2 - 50, height/2, 120, 1, "Play"); // button that transitions to in-game screen
 
     break;
 
-  case 1:
+  case 1: // in-game screen
 
     noCursor();
 
@@ -79,13 +79,15 @@ void draw()
     cam.feed();
     mouseLook();
 
+    // sets player position to camera position 
+
     player.pos.x = camPos[0];
     player.pos.y = camPos[1];
     player.pos.z = camPos[2];
 
     bulletTarget = new PVector(target[0], target[1], target[2]);
 
-    if (mE.size() <= 5 + (int) (movingKilled/15))
+    if (mE.size() <= 5 + (int) (movingKilled/15)) // initial maximum of 5, adds more to the maximum based on how many have been been killed, scaling difficulty
     {
       int spawnPlace = (int) random(3);
 
@@ -108,23 +110,18 @@ void draw()
       }
     }
 
-    if (sE.size() <= 2)
+    if (sE.size() <= 2) // maximum of two shooting enemies
     {
-      int spawnPlace = (int) random(3);
+      int spawnPlace = (int) random(2);
 
       switch(spawnPlace)
       {
       case 0:
-        spawn = new PVector(random(-width, width), random(height), -range + 100);
-        sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(4000, 8000)));
-        break;
-
-      case 1:
         spawn = new PVector(-width, random(height), random(-range, 0));
         sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(4000, 8000)));
         break;
 
-      case 2:
+      case 1:
         spawn = new PVector(width, random(height), random(-range, 0));
         sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(4000, 8000)));
         break;
@@ -155,7 +152,7 @@ void draw()
       mE.get(i).checkIfShot();
       mE.get(i).checkCollision();
 
-      if (mE.get(i).pos.x < -width || mE.get(i).pos.x > width || mE.get(i).pos.z > 0 || mE.get(i).pos.z < -range || mE.get(i).pos.y < 0 || mE.get(i).pos.y > height)
+      if (mE.get(i).pos.x < -width || mE.get(i).pos.x > width || mE.get(i).pos.z > 0 || mE.get(i).pos.z < -range || mE.get(i).pos.y < 0 || mE.get(i).pos.y > height) // if moving enemy position lies outside the defined space
       {
         mE.remove(i);
       }
@@ -173,7 +170,7 @@ void draw()
     for (int i = 0; i < sE.size(); i++)
     {
       sE.get(i).update(); 
-      sE.get(i).shoot(sE.get(i).pos, player.pos);
+      sE.get(i).shoot(sE.get(i).pos, player.pos); // add bullets that move towards the player's position from the enemy's position
 
       if (sE.get(i).killed)
       {
@@ -189,37 +186,39 @@ void draw()
     fill(255, 0, 0);
     pushMatrix();
     translate(target[0], target[1], target[2]);
-    sphere(30);
+    sphere(30); // crosshair, aiming reticule
     strokeWeight(5);
     stroke(0, 255, 0);
     noFill();
-    arc(0, 0, 300, 300, 0, radians(health*3.6));
+    arc(0, 0, 300, 300, 0, radians(health*3.6)); // health indicator
     fill(255);
     textSize(200);
-    text((int) score, - width/2 + 200, - height/2 + 100);
+    text((int) score, - width/2 + 200, - height/2 + 100); // score indicator
     popMatrix();
 
     strokeWeight(1);
     noStroke();
     fill(255);
 
-    health += 0.025;
+    health += 0.025; // incrementally add health 
 
     if (health >= 100)
     {
-      health = 100;
+      health = 100; // caps health
     }
 
     if (health <= 0)
     {
-      screenState = 2;
+      screenState = 2; // game ends when health <= 0
     }
 
     break;
 
-  case 2:
+  case 2: // game over screen
 
     staticCam.feed();
+
+    // display game stats
 
     textSize(128);
     text("Game Over", width/2, 200);
@@ -240,11 +239,11 @@ void draw()
   }
 }
 
-void mousePressed()
+void mousePressed() // add bullet when mousePressed
 {
   if (screenState == 1)
-  {
-    b.add(new Bullet(player.pos, bulletTarget, 100));
+  { 
+    b.add(new Bullet(player.pos, bulletTarget, 100, color(0, 255, 0)));
     score -= 3;
     bulletsShot++;
   }
@@ -254,7 +253,7 @@ void keyPressed()
 {
   if (screenState != 0)
   {
-    if (key == ESC)
+    if (key == ESC) // return to start screen
     {
       key = 0;
 
@@ -265,7 +264,7 @@ void keyPressed()
 
 void button(float x1, float y1, int buttonHeight, int number, String buttonText)
 {
-  float buttonWidth = buttonText.length() * 13 * 1.5384615385 * 3;
+  float buttonWidth = buttonText.length() * 13 * 1.5384615385 * 3; // makes buttonWidth variable based on the length of buttonText
   fill(255, 0);
   stroke(255, 0);
   rect(x1, y1, buttonWidth, buttonHeight);
@@ -277,7 +276,9 @@ void button(float x1, float y1, int buttonHeight, int number, String buttonText)
   {
     if (mousePressed)
     {
-      screenState = number;
+      screenState = number; // change screen
+
+      // reset game stats, start new game
 
       health = 100;
       score = 0;

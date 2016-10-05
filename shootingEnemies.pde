@@ -3,7 +3,7 @@ class ShootingEnemy extends Enemy
   float fireRate;
   float time;
 
-  ArrayList<Bullet> bullets = new ArrayList<Bullet>(); 
+  ArrayList<Bullet> bullets = new ArrayList<Bullet>(); // ArrayList of bullets that it shoots
 
   ShootingEnemy(PVector _pos, float _size, int _textureNo, float _fireRate)
   {
@@ -15,9 +15,9 @@ class ShootingEnemy extends Enemy
 
   void shoot(PVector _start, PVector _target)
   {
-    if (time < millis())
+    if (time < millis()) // millis() timer
     {
-      bullets.add(new Bullet(_start, _target, 20));
+      bullets.add(new Bullet(_start, _target, 20, color(255, 0, 0)));
       time += fireRate;
     }
 

@@ -1,4 +1,4 @@
-class Enemy
+class Enemy // base enemy class
 {
   PVector pos;
   PVector dir;
@@ -59,7 +59,7 @@ class Enemy
 
   void checkBoundaries()
   {
-    if (pos.x < -width || pos.x > width || pos.z > 0 || pos.z < -range || pos.y < 0 || pos.y > height)
+    if (pos.x < -width || pos.x > width || pos.z > 0 || pos.z < -range || pos.y < 0 || pos.y > height) // checks whether its position lies outside the space
     {
       killed = true;
     }
