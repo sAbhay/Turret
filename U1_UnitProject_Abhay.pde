@@ -1,3 +1,9 @@
+/*
+  Block Game - Abhay Singhal
+  
+  This is a survival FPS game with a stationary player and two types of enemies
+*/
+
 import damkjer.ocd.*;
 
 Camera cam;
