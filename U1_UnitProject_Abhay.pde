@@ -123,12 +123,12 @@ void draw()
       switch(spawnPlace)
       {
       case 0:
-        spawn = new PVector(-width, random(height), random(-3*range/4, -range/4));
+        spawn = new PVector(-width + 100, random(height), random(-3*range/4, -range/4));
         sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(4000, 8000)));
         break;
 
       case 1:
-        spawn = new PVector(width, random(height), random(-3*range/4, -range/4));
+        spawn = new PVector(width - 100, random(height), random(-3*range/4, -range/4));
         sE.add(new ShootingEnemy(spawn, random(50, 200), 0, random(4000, 8000)));
         break;
       }
